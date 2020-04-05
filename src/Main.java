@@ -1,14 +1,52 @@
 
 import pl.apirog.sortersFrame.*;
 
-import java.lang.reflect.*;
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
+
 
 public class Main
 {
+    private static List<Class<? extends AbstractIntSorter>> getClasses(File directory)
+    {
+        List<Class<? extends AbstractIntSorter>> files = new ArrayList<Class<? extends AbstractIntSorter>>();
+        File[] entries = directory.listFiles();
+        Class superClass = AbstractIntSorter.class;
+
+        for (File entry : entries)
+        {
+            if(entry.getName().endsWith(".class"))
+            {
+                try
+                {
+
+                        String name = entry.getName().replace(".class","");
+                        Class clazz = Class.forName("pl.apirog.sorters."+name);
+                        if(superClass.isAssignableFrom(clazz))
+                        {
+                            Class<? extends AbstractIntSorter> clazz2 = (Class<? extends AbstractIntSorter>) Class.forName("pl.apirog.sorters."+name);
+                            files.add(clazz2);
+                        }
+
+
+
+
+                } catch (NoClassDefFoundError e)
+                {
+
+                } catch (ReflectiveOperationException f)
+                {
+                    f.printStackTrace();
+                    System.err.println("Error");
+                    System.exit(1);
+                }
+
+            }
+
+        }
+        return files;
+    }
     static void display (List<IElement> list)
     {
         int n =list.size();
@@ -33,6 +71,15 @@ public class Main
 
     public static void main(String[] args)
     {
+
+        File directory = new File("out/production/Cache-simulation/pl/apirog/sorters");
+        List<Class<? extends AbstractIntSorter>> list = getClasses(directory);
+
+        System.out.println(list.get(3).getName());
+
+
+
+       /*
         Class<? extends AbstractFloatSorter> klasa;
         AbstractFloatSorter sorter = null;
 
@@ -75,5 +122,7 @@ public class Main
         sorted = sorter.solve2(list);
         System.out.println("Posortowane:");
         display(sorted);
+
+*/
     }
 }
