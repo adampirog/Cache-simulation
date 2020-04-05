@@ -1,5 +1,7 @@
 package pl.apirog.cache;
 
+import pl.apirog.sortersFrame.IntElement;
+
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.SoftReference;
 import java.util.*;
@@ -8,15 +10,7 @@ public class SoftHashMap extends AbstractMap
 {
     private final Map hash = new HashMap();
 
-    private final int HARD_SIZE;
-
-    private final LinkedList hardCache = new LinkedList();
-
     private final ReferenceQueue queue = new ReferenceQueue();
-
-
-    public SoftHashMap(int hardSize) { HARD_SIZE = hardSize; }
-    public SoftHashMap() { HARD_SIZE = 100; }
 
 
 
@@ -31,16 +25,35 @@ public class SoftHashMap extends AbstractMap
             if (result == null)
             {
                 hash.remove(key);
-            } else
-                {
-                hardCache.addFirst(result);
-                if (hardCache.size() > HARD_SIZE)
-                {
-                    hardCache.removeLast();
-                }
             }
+
         }
         return result;
+    }
+
+    public boolean contains(Object key)
+    {
+
+        SoftReference soft_ref = (SoftReference)hash.get(key);
+        if (soft_ref != null)
+        {
+            Object result = soft_ref.get();
+            if (result == null)
+            {
+                hash.remove(key);
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+
+        }
+        else
+        {
+            return false;
+        }
+
     }
 
     private static class SoftValue extends SoftReference
@@ -75,7 +88,6 @@ public class SoftHashMap extends AbstractMap
     }
     public void clear()
     {
-        hardCache.clear();
         cleanQueue();
         hash.clear();
     }
@@ -85,10 +97,28 @@ public class SoftHashMap extends AbstractMap
         return hash.size();
     }
 
+    public Set<Long> keySet()
+    {
+        return  hash.keySet();
+    }
+
+    public List<List<IntElement>> valueList()
+    {
+        List<List<IntElement>> result = new ArrayList<>();
+
+        for(Long key : keySet())
+        {
+            result.add((List<IntElement>) get(key));
+        }
+        return result;
+
+    }
+
+
 
     @Override
     public Set<Entry> entrySet()
     {
-        throw new UnsupportedOperationException();
+        return hash.entrySet();
     }
 }

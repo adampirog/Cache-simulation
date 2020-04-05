@@ -3,16 +3,17 @@ package pl.apirog.cache;
 import pl.apirog.sortersFrame.IntElement;
 
 import java.util.List;
+import java.util.Set;
 
 public class Cache
 {
-    SoftHashMap map = new SoftHashMap();
+    private SoftHashMap map = new SoftHashMap();
 
-    int missGlobal = 0;
-    int missLocal= 0;
+    private int missGlobal = 0;
+    private int missLocal= 0;
 
-    int referenceGlobal= 0;
-    int referenceLocal= 0;
+    private int referenceGlobal= 0;
+    private int referenceLocal= 0;
 
     public Cache()
     {
@@ -23,13 +24,13 @@ public class Cache
         referenceLocal = 0;
     }
 
-    public synchronized void hit()
+    private synchronized void hit()
     {
         referenceLocal++;
         referenceGlobal++;
     }
 
-    public synchronized void miss()
+    private synchronized void miss()
     {
         missGlobal++;
         missLocal++;
@@ -43,7 +44,19 @@ public class Cache
         referenceLocal = 0;
     }
 
-    //returns true if record already exists in cache
+    public synchronized boolean cointains( Object key)
+    {
+        boolean result = map.contains(key);
+
+        if(result==true)
+            hit();
+        else
+            miss();
+
+        return result;
+    }
+
+
     public synchronized boolean add(Long seed, List<IntElement> list)
     {
         if(map.get(seed)==null)
@@ -63,5 +76,37 @@ public class Cache
     public synchronized void remove(Long seed)
     {
         map.remove(seed);
+    }
+
+    public synchronized List<IntElement> get(Long seed)
+    {
+        List<IntElement> result = (List<IntElement>) map.get(seed);
+
+        return result;
+    }
+
+    public synchronized int size()
+    {
+        return map.size();
+    }
+
+    public synchronized float localMissPercent()
+    {
+        return ((missLocal/referenceLocal) *100);
+    }
+
+    public synchronized float globalMissPercent()
+    {
+        return ((missGlobal/referenceGlobal) * 100);
+    }
+
+    public synchronized Set<Long> keySet()
+    {
+        return  map.keySet();
+    }
+
+    public synchronized List<List<IntElement>> valueList()
+    {
+        return  map.valueList();
     }
 }

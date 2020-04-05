@@ -1,14 +1,18 @@
 
+import pl.apirog.cache.Cache;
 import pl.apirog.sortersFrame.*;
 
 import java.io.File;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 public class Main
 {
+    public static List<Class<? extends AbstractIntSorter>> classList;
+
     private static List<Class<? extends AbstractIntSorter>> getClasses(File directory)
     {
         List<Class<? extends AbstractIntSorter>> files = new ArrayList<Class<? extends AbstractIntSorter>>();
@@ -37,8 +41,7 @@ public class Main
                 } catch (ReflectiveOperationException f)
                 {
                     f.printStackTrace();
-                    System.err.println("Error");
-                    System.exit(1);
+                    return null;
                 }
 
             }
@@ -71,8 +74,39 @@ public class Main
     public static void main(String[] args)
     {
 
+        Cache cache = new Cache();
+        SortingThread thr = new SortingThread(cache,0);
+        SortingThread thr2 = new SortingThread(cache,1);
+        thr.start();
+        thr2.start();
+
+        try {
+            Thread.sleep(6000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        thr.stop();
+        thr2.stop();
+
+        List<List<IntElement>> set = cache.valueList();
+        Set<Long> keys = cache.keySet();
+
+        System.out.println("Size: "+cache.size());
+
+        for(Long longi : keys)
+        {
+            System.out.println(longi);
+        }
+
+
+
+
+
+        /*
         File directory = new File("out/production/Cache-simulation/pl/apirog/sorters");
-        List<Class<? extends AbstractIntSorter>> classList = getClasses(directory);
+        classList = getClasses(directory);
+
+
 
 
 
@@ -121,5 +155,11 @@ public class Main
             displayINT(sorted);
 
         }
+
+         */
+
+
     }
+
+
 }
