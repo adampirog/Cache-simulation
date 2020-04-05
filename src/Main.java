@@ -14,6 +14,7 @@ public class Main
         List<Class<? extends AbstractIntSorter>> files = new ArrayList<Class<? extends AbstractIntSorter>>();
         File[] entries = directory.listFiles();
         Class superClass = AbstractIntSorter.class;
+        String pack = "pl.apirog.sorters.";
 
         for (File entry : entries)
         {
@@ -21,17 +22,14 @@ public class Main
             {
                 try
                 {
-
                         String name = entry.getName().replace(".class","");
-                        Class clazz = Class.forName("pl.apirog.sorters."+name);
+                        Class clazz = Class.forName(pack+name);
+
                         if(superClass.isAssignableFrom(clazz))
                         {
-                            Class<? extends AbstractIntSorter> clazz2 = (Class<? extends AbstractIntSorter>) Class.forName("pl.apirog.sorters."+name);
+                            Class<? extends AbstractIntSorter> clazz2 = (Class<? extends AbstractIntSorter>) Class.forName(pack+name);
                             files.add(clazz2);
                         }
-
-
-
 
                 } catch (NoClassDefFoundError e)
                 {
