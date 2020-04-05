@@ -2,6 +2,7 @@
 import pl.apirog.sortersFrame.*;
 
 import java.io.File;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,56 +74,54 @@ public class Main
     {
 
         File directory = new File("out/production/Cache-simulation/pl/apirog/sorters");
-        List<Class<? extends AbstractIntSorter>> list = getClasses(directory);
-
-        System.out.println(list.get(3).getName());
+        List<Class<? extends AbstractIntSorter>> classList = getClasses(directory);
 
 
 
-       /*
-        Class<? extends AbstractFloatSorter> klasa;
-        AbstractFloatSorter sorter = null;
+        for(Class clazz : classList)
+        {
 
-        List<IElement> list = new ArrayList<>();
-        List<IElement> sorted;
+            System.out.println(clazz.getName());
+            Class<? extends AbstractIntSorter> klasa;
+            AbstractIntSorter sorter = null;
+
+            List<IntElement> list = new ArrayList<>();
+            List<IntElement> sorted;
 
 
-        try {
-            klasa = (Class<? extends AbstractFloatSorter>)  // Unchecked cast!
-                    Class.forName("pl.apirog.sorters.QuickSorter");
-            // Get the constructor
-            Constructor<? extends AbstractFloatSorter> cons;
-            cons = klasa.getDeclaredConstructor();
-            // Instantiate the set
-            sorter = cons.newInstance();
-        } catch (ReflectiveOperationException e) {
-            System.err.println("Constructor not accessible");
-            System.exit(1);
+            try {
+                klasa = clazz;
+                // Get the constructor
+                Constructor<? extends AbstractIntSorter> cons;
+                cons = klasa.getDeclaredConstructor();
+                // Instantiate the set
+                sorter = cons.newInstance();
+            } catch (ReflectiveOperationException e) {
+                System.err.println("Constructor not accessible");
+                System.exit(1);
+            }
+
+            //---------Dzialanie klasy
+
+
+            IntElement a = new IntElement(5, "a");
+            IntElement b = new IntElement(18, "b");
+            IntElement c = new IntElement(-21, "c");
+            IntElement d = new IntElement(66, "d");
+            IntElement e = new IntElement(-8, "e");
+
+
+            list.add(a);
+            list.add(b);
+            list.add(c);
+            list.add(d);
+            list.add(e);
+
+            displayINT(list);
+            sorted = sorter.solve(list);
+            System.out.println("Posortowane:");
+            displayINT(sorted);
+
         }
-
-        //---------Dzialanie klasy
-
-
-
-        IElement a = new FloatElement(5,"a");
-        IElement b = new FloatElement(18,"b");
-        IElement c = new IntElement(-21, "c");
-        IElement d = new FloatElement(66,"d");
-        IElement e = new IntElement(-8,"e");
-
-
-
-        list.add(a);
-        list.add(b);
-        list.add(c);
-        list.add(d);
-        list.add(e);
-
-        display(list);
-        sorted = sorter.solve2(list);
-        System.out.println("Posortowane:");
-        display(sorted);
-
-*/
     }
 }
