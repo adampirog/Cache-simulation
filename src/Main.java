@@ -93,7 +93,7 @@ public class Main
     public static void main(String[] args)
     {
         Cache cache = new Cache();
-        classList = getClasses(new File(System.getProperty("java.class.path")));
+        //classList = getClasses(new File(System.getProperty("java.class.path")));
         int masterTime, threads, intervals;
         //report period in seconds
         int reportPeriod = 3;
