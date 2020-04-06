@@ -9,11 +9,11 @@ public class Cache
 {
     private SoftHashMap map = new SoftHashMap();
 
-    private int missGlobal = 0;
-    private int missLocal= 0;
+    volatile private int missGlobal = 0;
+    volatile private int missLocal= 0;
 
-    private int referenceGlobal= 0;
-    private int referenceLocal= 0;
+    volatile private int referenceGlobal= 0;
+    volatile private int referenceLocal= 0;
 
     public Cache()
     {
@@ -44,11 +44,11 @@ public class Cache
         referenceLocal = 0;
     }
 
-    public synchronized boolean cointains( Object key)
+    public synchronized boolean contains( Object key)
     {
         boolean result = map.contains(key);
 
-        if(result==true)
+        if(result)
             hit();
         else
             miss();
@@ -92,12 +92,14 @@ public class Cache
 
     public synchronized float localMissPercent()
     {
-        return ((missLocal/referenceLocal) *100);
+        float result = (((float)missLocal/referenceLocal) * 100);
+        resetLocal();
+        return result;
     }
 
     public synchronized float globalMissPercent()
     {
-        return ((missGlobal/referenceGlobal) * 100);
+        return (((float)missGlobal/referenceGlobal) *100);
     }
 
     public synchronized Set<Long> keySet()

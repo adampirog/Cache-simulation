@@ -3,17 +3,14 @@ import pl.apirog.cache.Cache;
 import pl.apirog.sortersFrame.*;
 
 import java.io.File;
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 
 public class Main
 {
-    public static List<Class<? extends AbstractIntSorter>> classList;
+    volatile public static List<Class<? extends AbstractIntSorter>> classList;
 
-    private static List<Class<? extends AbstractIntSorter>> getClasses(File directory)
+    private static synchronized List<Class<? extends AbstractIntSorter>> getClasses(File directory)
     {
         List<Class<? extends AbstractIntSorter>> files = new ArrayList<Class<? extends AbstractIntSorter>>();
         File[] entries = directory.listFiles();
@@ -37,18 +34,40 @@ public class Main
 
                 } catch (NoClassDefFoundError e)
                 {
-
+                   //System.out.println("Wrong class "+ entry.getName());
                 } catch (ReflectiveOperationException f)
                 {
-                    f.printStackTrace();
-                    return null;
+                   // System.out.println("Wrong class "+ entry.getName());
                 }
 
+            }
+            else if(entry.isDirectory())
+            {
+                files.addAll(getClasses(entry));
             }
 
         }
         return files;
     }
+
+    public static synchronized Class getRandomClass()
+    {
+        if(classList.size()==0)
+            return null;
+
+        Random rand = new Random(); //instance of random class
+        int int_random = rand.nextInt(classList.size());
+        return classList.get(int_random);
+    }
+
+    public static void safePrint(Object string)
+    {
+        synchronized (System.out)
+        {
+            System.out.println(string);
+        }
+    }
+
     static void display (List<IElement> list)
     {
         int n =list.size();
@@ -73,90 +92,48 @@ public class Main
 
     public static void main(String[] args)
     {
-
         Cache cache = new Cache();
-        SortingThread thr = new SortingThread(cache,0);
-        SortingThread thr2 = new SortingThread(cache,1);
-        thr.start();
-        thr2.start();
+        classList = getClasses(new File(System.getProperty("java.class.path")));
+        int masterTime, threads, intervals;
+        //report period in seconds
+        int reportPeriod = 3;
+        List<SortingThread> threadList = new ArrayList<>();
 
-        try {
-            Thread.sleep(6000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        thr.stop();
-        thr2.stop();
+        Scanner in = new Scanner(System.in);
+        System.out.println("Number of threads:");
+        threads = in.nextInt();
+        System.out.println("App work time (in seconds):");
+        masterTime = in.nextInt();
 
-        List<List<IntElement>> set = cache.valueList();
-        Set<Long> keys = cache.keySet();
+        intervals = masterTime/reportPeriod;
 
-        System.out.println("Size: "+cache.size());
-
-        for(Long longi : keys)
+        for(int i=0;i<threads;i++)
         {
-            System.out.println(longi);
+            SortingThread thrd = new SortingThread(cache, i);
+            threadList.add(thrd);
+            thrd.start();
         }
 
-
-
-
-
-        /*
-        File directory = new File("out/production/Cache-simulation/pl/apirog/sorters");
-        classList = getClasses(directory);
-
-
-
-
-
-        for(Class clazz : classList)
+        for(int i=0;i<intervals;i++)
         {
-
-            System.out.println(clazz.getName());
-            Class<? extends AbstractIntSorter> klasa;
-            AbstractIntSorter sorter = null;
-
-            List<IntElement> list = new ArrayList<>();
-            List<IntElement> sorted;
-
-
             try {
-                klasa = clazz;
-                // Get the constructor
-                Constructor<? extends AbstractIntSorter> cons;
-                cons = klasa.getDeclaredConstructor();
-                // Instantiate the set
-                sorter = cons.newInstance();
-            } catch (ReflectiveOperationException e) {
-                System.err.println("Constructor not accessible");
-                System.exit(1);
+                Thread.sleep(reportPeriod*1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
+            safePrint("Local miss percent: " + cache.localMissPercent());
 
-            //---------Dzialanie klasy
-
-
-            IntElement a = new IntElement(5, "a");
-            IntElement b = new IntElement(18, "b");
-            IntElement c = new IntElement(-21, "c");
-            IntElement d = new IntElement(66, "d");
-            IntElement e = new IntElement(-8, "e");
-
-
-            list.add(a);
-            list.add(b);
-            list.add(c);
-            list.add(d);
-            list.add(e);
-
-            displayINT(list);
-            sorted = sorter.solve(list);
-            System.out.println("Posortowane:");
-            displayINT(sorted);
-
+            //refresh classes
+            classList=getClasses(new File(System.getProperty("java.class.path")));
         }
 
-         */
+        for(int i=0;i<threads;i++)
+        {
+            threadList.get(i).stop();
+        }
+
+        safePrint("Local miss percent: " + cache.localMissPercent());
+        safePrint("Global miss percent: "+cache.globalMissPercent());
 
 
     }
