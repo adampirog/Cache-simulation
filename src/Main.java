@@ -121,7 +121,7 @@ public class Main
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            safePrint("Local miss percent: " + cache.localMissPercent());
+            safePrint("Cache size: " + cache.size()+" Local miss percent: " + cache.localMissPercent());
 
             //refresh classes
             classList=getClasses(new File(System.getProperty("java.class.path")));
@@ -132,7 +132,7 @@ public class Main
             threadList.get(i).stop();
         }
 
-        safePrint("Local miss percent: " + cache.localMissPercent());
+        safePrint("Cache size: " + cache.size()+" Local miss percent: " + cache.localMissPercent());
         safePrint("Global miss percent: "+cache.globalMissPercent());
 
 
