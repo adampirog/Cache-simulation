@@ -1,7 +1,7 @@
 # Cache simulation
 
 ## SoftHashMap
-Implementation based of *WeakHashMap* using Soft References instead of Weak References to achieve Cache-like capabilities to free memory elements
+Implementation based of *WeakHashMap* using Soft References instead of Weak References to achieve Cache-like capabilities to free memory elements in case of heap space shortage. 
 
 
 ## Cache
